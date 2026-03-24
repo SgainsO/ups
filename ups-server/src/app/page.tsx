@@ -10,7 +10,7 @@ export default function Home() {
   const [name, setName] = useState<string>("John Doe")
   const [inputText, setInputText] = useState<string>("")
   const [showError, setShowError] = useState<boolean>(false)
-  const [promptText, setPromptText] = useState<string>("Original Showing")
+  const [promptText, setPromptText] = useState<string[]>([])
   const [schema, setSchema] = useState<"user_profile" | "order">("user_profile")
 
 
@@ -19,6 +19,7 @@ export default function Home() {
       if (showError) {
         setTimeout(() => {
           setShowError(false);
+          setPromptText([])
         }, 3000);
       }
     };
@@ -26,13 +27,15 @@ export default function Home() {
   }, [showError])
 
   const handleCall = async () => {
+    console.log(promptText)
     let jsonified : user_profile | order | null = null
     if (schema === "user_profile") {
       jsonified = parseUser(inputText, setShowError, setPromptText)
     } else if (schema === "order") {
-      jsonified = parseOrder(inputText, setShowError,setPromptText)
+      jsonified = parseOrder(inputText, setShowError, setPromptText)
     }
-
+    setShowError(true) //FOR DEBUG REMOVE
+    return //For testing
     if (jsonified === null){return}
 
     const response = await fetch("/new_json", {
@@ -43,7 +46,7 @@ export default function Home() {
       body: JSON.stringify({ name, schema, json: jsonified })
     }).then(res => {
       if (!res.ok) {
-        setPromptText("Error on the backend side")
+        setPromptText(["Error on the backend side"])
         setShowError(true)
       }
       return res.json();
@@ -56,7 +59,10 @@ export default function Home() {
       <div className={styles.container}>
         
         <h1>UPS Server</h1>
-        {showError ? <h3>{promptText}</h3> : <h3></h3>}
+        <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
+          {promptText && showError && promptText.length > 0 ? 
+          promptText.map((string, key ) => <h3 key={key}>{string}</h3>) : <h3></h3>}
+        </div>
 
         <textarea cols={50}
          onChange={(e) => {setInputText(e.target.value)}}
@@ -68,10 +74,13 @@ export default function Home() {
             <option value="user_profile">user_profile</option>
             <option value="order">order</option>
           </select>
-            <button style={{ width: "100px", height: "40px"}} onClick={() => {handleCall}}>
-              Validate
-            </button>
-     
+
+          <button style={{ width: "100px", height: "40px"}} 
+          onClick={() => {handleCall()}}
+          disabled={ showError? true : false}>
+            Validate
+          </button>
+    
         </div>
       </div>
     </div>

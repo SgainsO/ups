@@ -1,13 +1,14 @@
 import  { user_profile, order } from "./types";
 
-export const parseUser = (user:string, errorShow:any, promptText:any) : user_profile | null =>
+export const parseUser = (user:string, promptStateShow:any, promptText:any) : user_profile | null =>
 {
     let errors : string[] = []
     try {   
-        const text = JSON.parse(user) as user_profile; //Parses
+        const text = JSON.parse(user) as user_profile; 
+        //Parses as a type; if syntax mistake will fail
         if (text.country !== "US" && text.country !== "IN" && text.country !== "UK")
         {
-            errors.push("Make sure the selected country is US, EU, or UK\n")
+            errors.push(`Make sure the selected country is US, EU, or UK\n`)
         }
         if (text.age < 13 || text.age > 120)
         {
@@ -17,27 +18,27 @@ export const parseUser = (user:string, errorShow:any, promptText:any) : user_pro
         {
             errors.push("Please enter a correctly formatted email\n")
         }
-        promptText(errors.join()) 
         if (errors.length > 0)
         {
-            errorShow(true)
+            promptText(errors)         
+            promptStateShow(true)
             return null
         }
         else
         {
-            promptText("Validating...")
-            errorShow(true)
+            promptText(["Validating..."])
+            promptStateShow(true)
             return text
         }
     }
     catch {
-        promptText("Make sure have ID (text), Email, age, and country")
-        errorShow(true)
+        promptText(["Make sure have ID (text), Email, age, and country"])
+        promptStateShow(true)
         return null
     }
 }
 
-export const parseOrder = (order:string, errorShow:any, promptText:any) : order | null => {
+export const parseOrder = (order:string, promptStateShow:any, promptText:any) : order | null => {
     let errors : string[] = []
     let sum : number = 0
     try {
@@ -60,24 +61,24 @@ export const parseOrder = (order:string, errorShow:any, promptText:any) : order 
             errors.push(`Please ensure the total is accurate.\n Calculated Total = ${parseFloat(sum.toFixed(2))}\n`)
         }
         
-        promptText(errors.join()) 
         if (errors.length > 0)
         {
-            errorShow(true)
+            promptText(errors) 
+            promptStateShow(true)
             return null
         }
         else
         {
-            promptText("Validating...")
-            errorShow(true)
+            promptText(["Validating..."])
+            promptStateShow(true)
             return text
         }
 
 
     }
     catch {
-        promptText("Make sure you are entering the correct feilds")
-        errorShow(true)
+        promptText(["Make sure you are entering the correct feilds"])
+        promptStateShow(true)
         return null
     }
 }
