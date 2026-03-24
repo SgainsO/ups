@@ -1,0 +1,26 @@
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgb(223, 226, 192);
+
+}
+
+.container {
+    gap: 40px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 60vh;
+}
+
+.select_and_go {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    background-color: white;
+
+
+}
