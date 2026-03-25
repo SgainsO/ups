@@ -134,7 +134,7 @@ async def create_new_order(data : master_json):
                 errors.append(["items", f"sku was not found in index {index}"])
                 break
             if "price" not in item or "qty" not in item:
-                errors.append(["price", "Items missing either a price or qty instance; can not correct price"])
+                errors.append(["price", "Items missing either a price or qty instance; can not calculate correct price"])
                 noPrice = True
                 break
             else:
@@ -144,8 +144,8 @@ async def create_new_order(data : master_json):
 
     else:
         errors.append(["items", "items is missing from database"])
-    if "price" not in specific:
-        errors.append(["price", "a value for price was not provided"])
+    if "total" not in specific:
+        errors.append(["total", "a value for full price (total) was not provided"])
 
     if not noPrice and "price" in specific:
         if abs(total_sum - specific["price"]) > .01:  

@@ -86,6 +86,12 @@ function makeid(length: number) { //stackoverflow
 
       <div className={styles.container}>
         <h1>UPS Server</h1>
+              {given_json ?
+         <div style={{textAlign: "center"}}>
+            <h2 >{given_json.ok ? "Pass" : "Fail"}</h2>
+            {!given_json.ok ? displayErrors() : null}
+          </div>
+         : null}
         <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
           {promptText && showError && promptText.length > 0 ? 
           promptText.map((string, key ) => <h3 key={key}>{string}</h3>) : <h3></h3>}
@@ -111,14 +117,7 @@ function makeid(length: number) { //stackoverflow
     
         </div>
       </div>
-      {given_json ?
-        <div className={styles.container}>
-         <div style={{textAlign: "center"}}>
-            <h2 >{given_json.ok ? "Pass" : "Fail"}</h2>
-            {!given_json.ok ? displayErrors() : null}
-          </div>
-         </div>
-         : null}
+
     </div>
   );
 }
