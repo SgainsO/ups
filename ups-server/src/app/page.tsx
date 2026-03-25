@@ -12,6 +12,7 @@ export default function Home() {
   const [showError, setShowError] = useState<boolean>(false)
   const [promptText, setPromptText] = useState<string[]>([])
   const [schema, setSchema] = useState<string>("user_profile")
+  const [file_Selected, setFileSelected] = useState<string>("")
 
   const [given_json, setGivenJson] = useState<any>(null)
 
@@ -68,6 +69,10 @@ function makeid(length: number) { //stackoverflow
 
   const handleCall = async () => {
     let name = makeid(7)
+    if (file_Selected !== "")
+    {
+      name = file_Selected
+    }
     setGivenJson(null)
 
     console.log(promptText)
@@ -101,7 +106,9 @@ function makeid(length: number) { //stackoverflow
       setGivenJson(data);
     }
     )
+    setFileSelected("")
   }
+
 
   const handleSelectJson = async (name: string) => {
     const response = await fetch(`http://localhost:8000/select-json/${name}`);
@@ -112,6 +119,7 @@ function makeid(length: number) { //stackoverflow
     const data = await response.json();
     console.log(data)
     setInputText(JSON.stringify(data.data["json"]));
+    setFileSelected(name)
   }
 
   const displayErrors = () => {
