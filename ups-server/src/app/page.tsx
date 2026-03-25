@@ -1,17 +1,29 @@
 "use client";
-import {parseUser, parseOrder} from "./parse"
-import { user_profile, order } from "./types";
+import {parseUser, parseOrder, genericParse} from "./parse"
+import { user_profile, order, master, debug_item } from "./types";
 import { useState, useEffect } from "react";
 import styles from "./container.module.css";
 import { json } from "stream/consumers";
+import { randomInt } from "crypto";
 
 
 export default function Home() {
-  const [name, setName] = useState<string>("John Doe")
   const [inputText, setInputText] = useState<string>("")
   const [showError, setShowError] = useState<boolean>(false)
   const [promptText, setPromptText] = useState<string[]>([])
-  const [schema, setSchema] = useState<"user_profile" | "order">("user_profile")
+  const [schema, setSchema] = useState<string>("user_profile")
+
+  const [given_json, setGivenJson] = useState<any>(null)
+
+function makeid(length: number) { //stackoverflow
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 
   useEffect(() => {
@@ -20,44 +32,59 @@ export default function Home() {
         setTimeout(() => {
           setShowError(false);
           setPromptText([])
-        }, 3000);
+        }, 300);
       }
     };
     timeFailure()
   }, [showError])
 
   const handleCall = async () => {
+    let name = makeid(7)
+    setGivenJson(null)
+
     console.log(promptText)
-    let jsonified : user_profile | order | null = null
-    if (schema === "user_profile") {
-      jsonified = parseUser(inputText, setShowError, setPromptText)
-    } else if (schema === "order") {
-      jsonified = parseOrder(inputText, setShowError, setPromptText)
-    }
-    setShowError(true) //FOR DEBUG REMOVE
-    return //For testing
+    let jsonified : master | null = null
+    jsonified = genericParse(inputText, setShowError, setPromptText)
     if (jsonified === null){return}
 
-    const response = await fetch("/new_json", {
+    let route = "http://localhost:8000/"
+    if (schema === "user_profile") {
+      route += "new_json_user_pro"
+    } else if (schema === "order") {
+      route += "new_json_order"
+      console.log(route)
+    }
+    setShowError(true) //FOR DEBUG REMOVE
+    
+
+    const response = await fetch(route, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ name, schema, json: jsonified })
-    }).then(res => {
+      body: JSON.stringify({ name, schema_name: schema, json: jsonified })
+    }).then(async res => {
       if (!res.ok) {
-        setPromptText(["Error on the backend side"])
+        setPromptText(["Error sending data to server"])
         setShowError(true)
       }
-      return res.json();
+      const data = await res.json();
+      console.log(data)
+      setGivenJson(data);
     }
     )
   }
 
+  const displayErrors = () => {
+    console.log(given_json.errors)
+    return given_json.errors.map((ditem: [string, string], key: number) => <h5 key={key}>{ditem[0]} : {ditem[1]}</h5>)
+  }
+
   return (
     <div className={styles.main}>
+
+
       <div className={styles.container}>
-        
         <h1>UPS Server</h1>
         <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
           {promptText && showError && promptText.length > 0 ? 
@@ -70,7 +97,8 @@ export default function Home() {
           style={{ width: "100%", height: "50%" }} />
      
         <div className={styles.select_and_go}>
-          <select style={{ width: "100px", height: "40px" }}>
+          <select style={{ width: "100px", height: "40px" }}
+          onChange={(e) => {setSchema(e.target.value)}}>
             <option value="user_profile">user_profile</option>
             <option value="order">order</option>
           </select>
@@ -83,6 +111,14 @@ export default function Home() {
     
         </div>
       </div>
+      {given_json ?
+        <div className={styles.container}>
+         <div style={{textAlign: "center"}}>
+            <h2 >{given_json.ok ? "Pass" : "Fail"}</h2>
+            {!given_json.ok ? displayErrors() : null}
+          </div>
+         </div>
+         : null}
     </div>
   );
 }

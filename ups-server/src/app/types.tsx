@@ -18,3 +18,14 @@ export interface order {
     items: item[]
     total: number
 }
+
+export interface master {
+    name: string
+    schema: string
+    json: any
+}
+
+export interface debug_item {
+    type: string
+    msg: string
+}

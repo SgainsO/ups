@@ -1,5 +1,21 @@
 import  { user_profile, order } from "./types";
 
+
+export const genericParse = (user:string, promptStateShow:any, promptText:any) => {
+    try {
+        const text = JSON.parse(user)
+        console.log(text)
+        promptText(["Validating..."])
+        promptStateShow(1)
+        return text
+    }
+    catch {
+        promptText(["Please ensure the output is in a correct json format"])
+        promptStateShow(1)
+        return null
+    }
+}
+
 export const parseUser = (user:string, promptStateShow:any, promptText:any) : user_profile | null =>
 {
     let errors : string[] = []

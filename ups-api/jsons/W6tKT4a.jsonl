@@ -1,0 +1,1 @@
+{"name": "W6tKT4a", "schema_name": "order", "json": {"order_id": "ord-001", "items": [{"sku": "SKU-A1", "qty": 2, "price": 9.99}, {"sku": "SKU-B2", "qty": 1, "price": 24.5}], "total": 44.48}}
