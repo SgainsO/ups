@@ -106,9 +106,9 @@ async def create_new_json(data: master_json):
 
     if not notCor: 
         with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
-            json.dump(json.dump(data.model_dump()), f)
+            json.dump(data.model_dump(), f)
     with open(f"jsons/{data.name}.jsonl", 'w') as f:
-        json.dump(return_json.dump(), f)
+        json.dump(return_json, f)
 
     return return_json
 

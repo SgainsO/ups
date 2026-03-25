@@ -8,7 +8,7 @@ import { randomInt } from "crypto";
 
 
 export default function Home() {
-  const [inputText, setInputText] = useState<string>("")
+  const [inputText, setInputText] = useState<string>("enter json here")
   const [showError, setShowError] = useState<boolean>(false)
   const [promptText, setPromptText] = useState<string[]>([])
   const [schema, setSchema] = useState<string>("user_profile")
@@ -111,7 +111,7 @@ function makeid(length: number) { //stackoverflow
     }
     const data = await response.json();
     console.log(data)
-    setInputText(data.data);
+    setInputText(JSON.stringify(data.data));
   }
 
   const displayErrors = () => {
@@ -151,9 +151,8 @@ function makeid(length: number) { //stackoverflow
         </div>
 
         <textarea cols={50}
-         value={JSON.stringify(inputText)}
+         value={inputText}
          onChange={(e) => {setInputText(e.target.value)}}
-         defaultValue="add your json here"
           style={{ width: "100%", height: "50%" }} />
      
         <div className={styles.select_and_go}>
