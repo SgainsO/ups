@@ -111,7 +111,7 @@ function makeid(length: number) { //stackoverflow
     }
     const data = await response.json();
     console.log(data)
-    setInputText(JSON.stringify(data.data));
+    setInputText(JSON.stringify(data.data["json"]));
   }
 
   const displayErrors = () => {

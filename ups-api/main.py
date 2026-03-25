@@ -30,7 +30,7 @@ class order(BaseModel):
 
 class master_json(BaseModel):
     name: str
-    schema_name: str  # 'schema' is reserved in Pydantic v1
+    schema_name: str 
     json: dict
 
 
@@ -50,23 +50,25 @@ async def health_check():
 
 @app.post("/new_json_user_pro")
 async def create_new_json(data: master_json):
+    print(data)
     time2sleep = random.randrange(150,500)
-    time.sleep(time2sleep / 1000)  # convert ms to seconds
+    time.sleep(time2sleep / 1000) 
     errors = []
     warning = []
 
     specific = data.json
+    print(specific)
     types = ["id", "email", "age", "country"]
 
     notCor = False
 
     for type in types:
         if type not in specific:
-            errors.append([type, "missing from json file"])  # was a set literal
+            errors.append([type, "missing from json file"]) 
             notCor = True
     if "name" not in specific:
-        warning.append({"name", "missing from json file"})  # was [] instead of ()
-    count_ops = ["US", "EU", "IN"]  # was a single string "US, EU, IN"
+        warning.append({"name", "missing from json file"}) 
+    count_ops = ["US", "EU", "IN"] 
     cor = False
 
     if "country" in specific:
@@ -75,17 +77,16 @@ async def create_new_json(data: master_json):
                 cor = True
                 break
     if not cor:
-        errors.append(["country", "incorrect country"])  # append takes one argument
+        errors.append(["country", "incorrect country"])
         notCor = True
 
     if "age" in specific:
         if specific["age"] > 120 or specific["age"] < 25:
-            errors.append(["age", "age is not in the correct range (13 - 120)"])  # append takes one argument
-            notCor = True
+            errors.append(["age", "age is not in the correct range (13 - 120)"])  
 
     if "email" in specific:
         if "@" not in specific["email"]:
-            errors.append(["email", "please enter an email in the correct format"])  # append takes one argument
+            errors.append(["email", "please enter an email in the correct format"])  
             notCor = True
 
     return_json = {
@@ -115,7 +116,7 @@ async def create_new_json(data: master_json):
 @app.post("/new_json_order")
 async def create_new_order(data : master_json):
     time2sleep = random.randrange(150,500)
-    time.sleep(time2sleep / 1000)  # convert ms to seconds
+    time.sleep(time2sleep / 1000)  
 
     errors = []
     warning = []
@@ -136,8 +137,7 @@ async def create_new_order(data : master_json):
             else:
                 total_sum += item["price"] * item["qty"] 
             if item["qty"] < 1:  
-                errors.append(["qty", f"An instance of invalid quantity value found {item['qty']}"])  # append takes one argument
-
+                errors.append(["qty", f"An instance of invalid quantity value found {item['qty']}"]) 
     else:
         errors.append(["items", "items is missing from database"])
     if "total" not in specific:
@@ -145,8 +145,7 @@ async def create_new_order(data : master_json):
 
     if not noPrice and "price" in specific:
         if abs(total_sum - specific["price"]) > .01:  
-            errors.append(["price", f"the total sum and the did not match: {total_sum}"])  # append takes one argument
-
+            errors.append(["price", f"the total sum and the did not match: {total_sum}"]) 
 
     toReturn = {
         "ok": True if len(errors) == 0 else False,
