@@ -103,6 +103,17 @@ function makeid(length: number) { //stackoverflow
     )
   }
 
+  const handleSelectJson = async (name: string) => {
+    const response = await fetch(`http://localhost:8000/select-json/${name}`);
+    if (!response.ok) {
+      console.log("error")
+      return
+    }
+    const data = await response.json();
+    console.log(data)
+    setInputText(data.data);
+  }
+
   const displayErrors = () => {
     console.log(given_json.errors)
     return given_json.errors.map((ditem: [string, string], key: number) => <h5 key={key}>{ditem[0]} : {ditem[1]}</h5>)
@@ -115,10 +126,12 @@ function makeid(length: number) { //stackoverflow
     <p key={key} style={{padding: "3px"}}>
     Name: {item[0]} Schema: {item[1]}
     </p>
-    <button onClick={() => {handleDeleteJson(item[0], item[1])}}>Delete</button>
-
-    </div>);
-  }
+    <div style={{display: "flex", flexDirection: "column", marginLeft: "auto", paddingLeft: "6px"}}>
+      <button onClick={() => {handleDeleteJson(item[0])}}>Delete</button>
+      <button onClick={() => {handleSelectJson(item[0])}}>Select</button>
+    </div>
+  </div>);
+}
 
   return (
     <div className={styles.main}>
@@ -138,6 +151,7 @@ function makeid(length: number) { //stackoverflow
         </div>
 
         <textarea cols={50}
+         value={JSON.stringify(inputText)}
          onChange={(e) => {setInputText(e.target.value)}}
          defaultValue="add your json here"
           style={{ width: "100%", height: "50%" }} />

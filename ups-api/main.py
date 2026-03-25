@@ -52,10 +52,6 @@ async def health_check():
 async def create_new_json(data: master_json):
     time2sleep = random.randrange(150,500)
     time.sleep(time2sleep / 1000)  # convert ms to seconds
-
-
-    with open(f"jsons/{data.name}.jsonl", 'w') as f:
-            json.dump(data.model_dump(), f)
     errors = []
     warning = []
 
@@ -110,7 +106,9 @@ async def create_new_json(data: master_json):
 
     if not notCor: 
         with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
-            json.dump(return_json, f)
+            json.dump(json.dump(data.model_dump()), f)
+    with open(f"jsons/{data.name}.jsonl", 'w') as f:
+        json.dump(return_json.dump(), f)
 
     return return_json
 
@@ -118,9 +116,6 @@ async def create_new_json(data: master_json):
 async def create_new_order(data : master_json):
     time2sleep = random.randrange(150,500)
     time.sleep(time2sleep / 1000)  # convert ms to seconds
-    with open(f"jsons/{data.name}.jsonl", 'w') as f:
-        json.dump(data.model_dump(), f)
-
 
     errors = []
     warning = []
@@ -163,7 +158,10 @@ async def create_new_order(data : master_json):
         }
     if len(errors) == 0:
         with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
-            json.dump(toReturn, f)
+            json.dump(data.model_dump(), f)
+
+    with open(f"jsons/{data.name}.jsonl", 'w') as f:
+        json.dump(toReturn.dump(), f)
     return toReturn
 
 @app.get("/list-jsons")
@@ -178,12 +176,18 @@ async def list_jsons():
 
 @app.delete("/delete-jsons/{name}")
 async def delete_jsons(name: str):
-    json_files = []
     for filename in os.listdir("jsons/database"):
         if name in filename.split("_")[0]:
             os.remove(os.path.join("jsons/database", filename))
     return {"ok": True}
 
+@app.get("/select-json/{name}")
+async def select_json(name: str):
+    for filename in os.listdir("jsons/database"):
+        if filename.split("_")[0] == name:
+            with open(os.path.join("jsons/database", filename), 'r') as f:
+                return {"ok": True, "data": json.load(f)}
+    return {"ok": False, "data": "File not found"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
