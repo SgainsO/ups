@@ -15,6 +15,9 @@ export default function Home() {
 
   const [given_json, setGivenJson] = useState<any>(null)
 
+  const [jsonsInDatabase, setJsonsInDatabase] = useState<any>(null)
+
+
 function makeid(length: number) { //stackoverflow
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -37,6 +40,31 @@ function makeid(length: number) { //stackoverflow
     };
     timeFailure()
   }, [showError])
+
+  const handleRecieveJsons = async () => {
+    const response = await fetch("http://localhost:8000/list-jsons");
+    if (!response.ok) {
+      setJsonsInDatabase(null)
+      console.log("error")
+      return
+    }
+    const data = await response.json();
+    console.log(data)
+    setJsonsInDatabase(data);
+  }
+
+  const handleDeleteJson = async (name: string) => {
+    const response = await fetch(`http://localhost:8000/delete-jsons/${name}`, {
+      method: "DELETE"
+    });
+    if (!response.ok) {
+      console.log("error")
+      return
+    }
+    const data = await response.json();
+    console.log(data)
+    handleRecieveJsons();
+  }
 
   const handleCall = async () => {
     let name = makeid(7)
@@ -80,12 +108,24 @@ function makeid(length: number) { //stackoverflow
     return given_json.errors.map((ditem: [string, string], key: number) => <h5 key={key}>{ditem[0]} : {ditem[1]}</h5>)
   }
 
+  const displayListJsons = () => {
+    if (!jsonsInDatabase) return null;
+    return jsonsInDatabase.file_names.map((item: [string, string], key: number) => 
+    <div style={{border: "1px solid black", margin: "5px", padding: "5px", display: "flex", flexDirection: "row", alignItems: "center"}}>
+    <p key={key} style={{padding: "3px"}}>
+    Name: {item[0]} Schema: {item[1]}
+    </p>
+    <button onClick={() => {handleDeleteJson(item[0], item[1])}}>Delete</button>
+
+    </div>);
+  }
+
   return (
     <div className={styles.main}>
 
 
       <div className={styles.container}>
-        <h1>UPS Server</h1>
+         <h1>Json Adder</h1>
               {given_json ?
          <div style={{textAlign: "center"}}>
             <h2 >{given_json.ok ? "Pass" : "Fail"}</h2>
@@ -114,9 +154,19 @@ function makeid(length: number) { //stackoverflow
           disabled={ showError? true : false}>
             Validate
           </button>
-    
+
+        
         </div>
       </div>
+        <div className={styles.container}>
+          <h1>List Json</h1>
+          <button style={{ width: "100px", height: "40px"}}
+          onClick={() => {handleRecieveJsons()}}
+          disabled={ showError? true : false}>
+            Fetch
+          </button>
+            {displayListJsons && displayListJsons()}
+        </div>
 
     </div>
   );

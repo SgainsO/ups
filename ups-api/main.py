@@ -107,9 +107,10 @@ async def create_new_json(data: master_json):
             "latency" : time2sleep,
             "timestamp" : "ISO-8601"
             }
-    
-    with open(f"jsons/{data.name}.json", 'w') as f:
-        json.dump(return_json, f)
+
+    if not notCor: 
+        with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
+            json.dump(return_json, f)
 
     return return_json
 
@@ -160,10 +161,29 @@ async def create_new_order(data : master_json):
         "latency" : time2sleep,
         "timestamp" : "ISO-8601"
         }
-    
-    with open(f"jsons/{data.name}.json", 'w') as f:
-        json.dump(toReturn, f)
+    if len(errors) == 0:
+        with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
+            json.dump(toReturn, f)
     return toReturn
+
+@app.get("/list-jsons")
+async def list_jsons():
+    file_names = []
+    schema_names = []
+    for filename in os.listdir("jsons/database"):
+        if filename.endswith(".json"):
+            items = filename.split("_")
+            file_names.append([items[0], items[1]])
+    return {"file_names": file_names}
+
+@app.delete("/delete-jsons/{name}")
+async def delete_jsons(name: str):
+    json_files = []
+    for filename in os.listdir("jsons/database"):
+        if name in filename.split("_")[0]:
+            os.remove(os.path.join("jsons/database", filename))
+    return {"ok": True}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
