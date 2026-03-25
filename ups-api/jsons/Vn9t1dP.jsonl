@@ -1,1 +1,0 @@
-{"ok": false, "errors": [["id", "missing from json file"], ["email", "missing from json file"], ["age", "missing from json file"], ["country", "missing from json file"], ["country", "incorrect country"]], "warnings": [], "summary": {}, "latency": 496, "timestamp": "ISO-8601"}

@@ -3,6 +3,7 @@ import time
 import random
 import json
 import math
+import datetime
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,7 +63,7 @@ async def create_new_json(data: master_json):
 
     notCor = False
 
-    for type in types:
+    for type in types:  #loops through each type to check if given in the schema
         if type not in specific:
             errors.append([type, "missing from json file"]) 
             notCor = True
@@ -89,23 +90,16 @@ async def create_new_json(data: master_json):
             errors.append(["email", "please enter an email in the correct format"])  
             notCor = True
 
-    return_json = {
-            "ok": False,
+    return_json = { 
+            "ok": False if notCor else True,
             "errors": errors,
             "warnings": warning,
             "summary": {},
             "latency" : time2sleep,
-            "timestamp" : "ISO-8601"
-            } if notCor else {
-            "ok": True,
-            "errors": errors,
-            "warnings": warning,
-            "summary" : {},
-            "latency" : time2sleep,
-            "timestamp" : "ISO-8601"
-            }
+            "timestamp" : str(datetime.datetime.now())}
 
-    if not notCor: 
+
+    if not notCor: # Always give the return input for logs, and save the input in the "database" if valid
         with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
             json.dump(data.model_dump(), f)
     with open(f"jsons/{data.name}.jsonl", 'w') as f:
@@ -153,7 +147,7 @@ async def create_new_order(data : master_json):
         "warnings": warning,
         "summary" : {},
         "latency" : time2sleep,
-        "timestamp" : "ISO-8601"
+        "timestamp" : str(datetime.datetime.now())
         }
     if len(errors) == 0:
         with open(f"jsons/database/{data.name}_{data.schema_name}.json", 'w') as f:
